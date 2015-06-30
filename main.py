@@ -13,10 +13,10 @@ NAME="JHGKJhskjdhfgksjdhg"
 INIT_TOPIC = "botgrid/init"
 
 # robot is sending state JSON-formatted to this topic
-STATE_TOPIC = "botgrid/{}/state"
+STATE_TOPIC = "botgrid/{}/state".format(NAME)
 
 # topic to send commands to robot
-CMD_TOPIC = "botgrid/{}/command"
+CMD_TOPIC = "botgrid/{}/command".format(NAME)
 
 # commands that can be issued to the robot
 class Cmd(Enum):
@@ -31,18 +31,25 @@ class Cmd(Enum):
 def message_handler(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
 
-
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    state = STATE_TOPIC.format(NAME)
-    print("subscribing to {}".format(state))
-    client.subscribe(state)
+    print("subscribing to {}".format(STATE_TOPIC))
+    client.subscribe(STATE_TOPIC)
 
     # send initialization command
     client.publish(INIT_TOPIC, NAME)
+    
+###############################################
+
+def cmd(cmd):
+    global client
+    if not isinstance(cmd, Cmd):
+        raise Exception("'cmd' is not an instance of Cmd")
+    
+    client.publish(CMD_TOPIC, cmd.value)
 
 ###############################################
 
@@ -58,15 +65,8 @@ client.on_message = message_handler
 # connect to to broker
 client.connect(HOST)
 
-# start background loop
-client.loop_start()
+# main loop
+client.loop_forever()
 
-while True:
-    try:
-        pass
-    except:
-        break
-
-# tidy up when finished
-client.loop_stop()
+# tidy up
 client.disconnect()
