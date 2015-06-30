@@ -2,6 +2,7 @@
 
 import paho.mqtt.client as mqtt
 from enum import Enum
+from robot import message_handler
 
 # MQTT Broker
 HOST = "iot.eclipse.org"
@@ -27,9 +28,6 @@ class Cmd(Enum):
     reset    = "r"
 
 ###############################################
-
-def message_handler(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
