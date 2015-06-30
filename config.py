@@ -24,6 +24,7 @@ class Cmd(Enum):
     go_east  = "e"
     go_west  = "w"
     reset    = "r"
+    nop      = "nop"
 
 ###############################################
 
