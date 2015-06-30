@@ -1,31 +1,9 @@
 #!/usr/bin/env python3
 
 import paho.mqtt.client as mqtt
-from enum import Enum
+import time
 from robot import message_handler
-
-# MQTT Broker
-HOST = "iot.eclipse.org"
-
-# name of client
-NAME="JHGKJhskjdhfgksjdhg"
-
-# topic to initialize new game, send <id> as payload
-INIT_TOPIC = "botgrid/init"
-
-# robot is sending state JSON-formatted to this topic
-STATE_TOPIC = "botgrid/{}/state".format(NAME)
-
-# topic to send commands to robot
-CMD_TOPIC = "botgrid/{}/command".format(NAME)
-
-# commands that can be issued to the robot
-class Cmd(Enum):
-    go_north = "n"
-    go_south = "s"
-    go_east  = "e"
-    go_west  = "w"
-    reset    = "r"
+from config import HOST, NAME, INIT_TOPIC, STATE_TOPIC
 
 ###############################################
 
@@ -42,15 +20,6 @@ def on_connect(client, userdata, flags, rc):
     
 ###############################################
 
-def cmd(cmd):
-    global client
-    if not isinstance(cmd, Cmd):
-        raise Exception("'cmd' is not an instance of Cmd")
-    
-    client.publish(CMD_TOPIC, cmd.value)
-
-###############################################
-
 # connect to game
 client = mqtt.Client()
 
@@ -64,7 +33,13 @@ client.on_message = message_handler
 client.connect(HOST)
 
 # main loop
-client.loop_forever()
+client.loop_start()
+while True:
+    try:
+        time.sleep(1)
+    except KeyboardInterrupt:
+        break
+client.loop_stop()
 
 # tidy up
 client.disconnect()
